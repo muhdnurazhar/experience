@@ -1,0 +1,25 @@
+---
+- name: 09-ftp.yml
+  hosts: LNX2
+  gather_facts: false
+  tasks:
+  - name: install vsftpd 
+    ansible.builtin.apt:
+      name: vsftpd
+      state: present
+#how to encrypt password (openssl passwd -6 Skills39)
+  - name: create ftpuser
+    ansible.builtin.user:
+      name: ftpuser
+      shell: /bin/bash
+      password: $6$diI1ZtkVdeVLgWaA$RT39m.hmXcVdu3Eq/wHnvNovk1XY3fyc8ROV15KzcqYU1XE7z9cf1ktDueZxntAddGS2gvn025pXXPFoHfmgA0
+  - name: copy vsftpd files
+    ansible.builtin.copy:
+      src: /data/ansible/ftp/vsftpd.conf
+      dest: /etc/vsftpd.conf
+  - name: Restart FTP service
+    ansible.builtin.service:
+      name: vsftpd
+      state: restarted
+
+

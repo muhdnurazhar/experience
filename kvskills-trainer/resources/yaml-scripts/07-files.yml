@@ -1,0 +1,47 @@
+---
+- name: 07-files.yml
+  hosts: WIN2
+  gather_facts: false
+  tasks:
+# add 3 slot disk 1GB on vm CORE!
+  - name: info diskpart
+    win_shell: '"list vol" | diskpart | Select-String RAID-5'
+  - name: Set the contents of a file
+    ansible.windows.win_copy:
+      content: |
+        select disk 1
+        attribute disk clear readonly
+        convert dynamic
+        select disk 2
+        attribute disk clear readonly
+        convert dynamic
+        select disk 3
+        attribute disk clear readonly
+        convert dynamic
+        create vol raid disk=1,2,3
+        format fs=ntfs quick
+        assign letter=H:  
+      dest: C:\disk.txt
+  - win_shell: diskpart /s C:\disk.txt
+
+  - name: Reboot 
+    ansible.windows.win_reboot:
+
+  - name: create folder
+    ansible.windows.win_file:
+      path: H:\{{item}}
+      state: directory
+    with_items: 
+      - homes
+      - shares
+      
+  - name: sharing folder
+    ansible.windows.win_share:
+      name: "{{item}}"
+      path: H:\{{item}}
+      full: Everyone
+      state: present
+    with_items: 
+      - homes
+      - shares
+

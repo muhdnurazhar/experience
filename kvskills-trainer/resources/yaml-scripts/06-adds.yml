@@ -1,0 +1,29 @@
+---
+- name: 06-adds.yml
+  hosts: WIN2
+  gather_facts: false
+  tasks:
+  - name: install secondary domain 
+    ansible.windows.win_feature:
+      name: AD-Domain-Services
+      state: present
+      include_sub_features: true
+      include_management_tools: true
+    register: win_feature
+
+  - name: Reboot when domain installed
+    ansible.windows.win_reboot:
+  
+
+  - name: set as secondary domain 
+    ansible.windows.win_domain_controller:
+      dns_domain_name: KVSkills.my
+      domain_admin_user: administrator@KVSkills.my
+      domain_admin_password: Skills39
+      safe_mode_password: Skills39
+      state: domain_controller
+      
+  - name: remove global catalouge
+    win_shell: repadmin.exe /options {{hostname}} -IS_GC
+
+

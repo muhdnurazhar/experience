@@ -1,0 +1,85 @@
+---
+- name: 04-ospf.yml
+  hosts: RTR1
+  gather_facts: false
+  tasks:
+  - name: set ospf
+    cisco.ios.ios_ospfv2:
+      config:
+        processes:
+          - process_id: 100
+            network:
+              - address: 24.48.72.0
+                wildcard_bits: 0.0.0.15
+                area: 0
+              - address: 172.16.10.0
+                wildcard_bits: 0.0.0.255
+                area: 0
+              - address: 192.168.10.0
+                wildcard_bits: 0.0.0.255
+                area: 0
+              - address: 1.1.1.1
+                wildcard_bits: 0.0.0.0
+                area: 0                
+  - name: set message-digestkey 
+    cisco.ios.ios_config:
+      lines:
+        - area 0 authentication message-digest
+      parents: router ospf 100
+
+  - name: set message-digestkey 
+    cisco.ios.ios_config:
+      lines:
+        - ip ospf message-digest-key 1 md5 Skills39
+      parents: interface {{item}}
+    with_items:
+      - GigabitEthernet0/0
+      - GigabitEthernet0/1.10
+      - GigabitEthernet0/1.20
+      - GigabitEthernet0/1.99
+      
+
+  - name: Save running to startup when modified
+    cisco.ios.ios_config:
+      save_when: modified                
+
+- name: 04-ospf.yml
+  hosts: RTR2
+  gather_facts: false
+  tasks:
+  - name: set ospf
+    cisco.ios.ios_ospfv2:
+      config:
+        processes:
+          - process_id: 100
+            network:
+              - address: 24.48.72.0
+                wildcard_bits: 0.0.0.15
+                area: 0        
+              - address: 172.16.20.0
+                wildcard_bits: 0.0.0.255
+                area: 0      
+              - address: 2.2.2.2
+                wildcard_bits: 0.0.0.0
+                area: 0        
+
+  - name: set message-digestkey 
+    cisco.ios.ios_config:
+      lines:
+        - area 0 authentication message-digest
+      parents: router ospf 100
+
+  - name: set message-digestkey 
+    cisco.ios.ios_config:
+      lines:
+        - ip ospf message-digest-key 1 md5 Skills39
+      parents: interface {{item}}
+    with_items:
+      - GigabitEthernet0/0
+      - GigabitEthernet0/1
+
+  - name: Save running to startup when modified
+    cisco.ios.ios_config:
+      save_when: modified                    
+
+        

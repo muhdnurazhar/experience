@@ -1,0 +1,18 @@
+---
+- name: 05-net-dhcp.yml
+  hosts: RTR1
+  gather_facts: false
+  tasks:
+  - name: dhcp configure
+    cisco.ios.ios_config:
+      lines:
+        - network 192.168.10.0 255.255.255.0
+        - default-router 192.168.10.254 
+        - dns-server 172.16.10.10 172.16.10.11
+        - domain-name KVSkills.my
+        - ip dhcp excluded-address 192.168.10.1 192.168.10.119
+      parents: ip dhcp pool DHCP-POOL
+
+  - name: Save running to startup when modified
+    cisco.ios.ios_config:
+      save_when: modified

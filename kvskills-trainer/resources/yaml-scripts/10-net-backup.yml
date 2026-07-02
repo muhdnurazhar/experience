@@ -1,0 +1,19 @@
+---
+- name: 10-net-backup.yml
+  hosts: cisco
+  gather_facts: false
+  tasks:
+  - name: save configuration cisco
+    ios_command:
+      commands:
+        - show running-config
+    register: running_config
+
+  - name: move backup from CISCO to MGMT
+    copy:
+      content: "{{ running_config.stdout[0] }}"
+      dest: "/data/ansible/backup/{{ hostname }}.cfg"
+  
+  - name: Save running to startup when modified
+    cisco.ios.ios_config:
+      save_when: modified

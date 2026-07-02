@@ -1,0 +1,19 @@
+---
+- name: 00-facts.yml
+  hosts: cisco
+  gather_facts: false
+  tasks:
+  - ios_facts:
+
+- name: 00-facts.yml
+  hosts: windows
+  gather_facts: false
+  tasks:
+  - win_ping:
+  
+- name: 00-facts.yml
+  hosts: linux
+  gather_facts: false
+  tasks:
+  - ping:
+   

@@ -1,0 +1,48 @@
+---
+- name: 03-switch.yml
+  hosts: SW3
+  gather_facts: false
+  tasks:
+  - name: configuring LACP 
+    cisco.ios.ios_config:
+      lines: channel-group 2 mode passive 
+      parents: interface range G1/1-2 
+  - name: configuring LACP 
+    cisco.ios.ios_config: 
+      lines: channel-group 3 mode passive 
+      parents: interface range G0/1-2 
+      
+  - name: enable encapsulation dot1q
+    cisco.ios.ios_config:
+      lines: 
+        - switchport trunk encapsulation dot1q
+        - switchport mode trunk
+        - switchport trunk allowed vlan 10,20,99
+      parents: interface GigabitEthernet0/0
+
+  - name: enable encapsulation dot1q
+    cisco.ios.ios_config:
+      lines: 
+        - switchport trunk encapsulation dot1q
+        - switchport mode trunk
+      parents: interface Port-Channel{{item}}
+    with_items: 
+      - 2
+      - 3
+  - name: vtp configuration
+    cisco.ios.ios_config:
+      lines: 
+        - vtp mode client
+        - vtp domain KVSkills.my
+        - vtp password Skills39
+        - vtp version 3
+
+  - name: save configuration
+    cisco.ios.ios_config:
+      save_when: modified
+        
+
+
+
+
+
